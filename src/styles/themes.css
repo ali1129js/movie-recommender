@@ -1,0 +1,66 @@
+/*
+ * Theme tokens. Every text/background and UI-boundary pair below is checked by
+ * src/styles/contrast.test.ts (WCAG 2.2: 4.5:1 for text, 3:1 for UI boundaries and focus rings;
+ * the high-contrast theme must reach 7:1 for text).
+ * Keep one declaration per line: the test parses this file.
+ */
+:root,
+[data-theme='light'] {
+  color-scheme: light;
+  --bg: #ffffff;
+  --surface: #f3f5f8;
+  --text: #14171c;
+  --text-muted: #4a5262;
+  --border: #6b7280;
+  --accent: #1d4ed8;
+  --on-accent: #ffffff;
+  --link: #1a47c0;
+  --focus: #1d4ed8;
+  --chip-on: #14171c;
+  --on-chip-on: #ffffff;
+  --badge-bg: #fff1cc;
+  --on-badge: #4a2f00;
+  --badge-cf-bg: #dff3e6;
+  --on-badge-cf: #0d4a26;
+  --danger: #b00020;
+}
+
+[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #0f1217;
+  --surface: #1a1f28;
+  --text: #eceef2;
+  --text-muted: #a9b1bf;
+  --border: #7c8697;
+  --accent: #8ab4ff;
+  --on-accent: #0a1020;
+  --link: #9fc0ff;
+  --focus: #9fc0ff;
+  --chip-on: #eceef2;
+  --on-chip-on: #0f1217;
+  --badge-bg: #3b2f10;
+  --on-badge: #ffe3a1;
+  --badge-cf-bg: #14352a;
+  --on-badge-cf: #aef0c6;
+  --danger: #ff9aa8;
+}
+
+[data-theme='contrast'] {
+  color-scheme: dark;
+  --bg: #000000;
+  --surface: #000000;
+  --text: #ffffff;
+  --text-muted: #ffffff;
+  --border: #ffffff;
+  --accent: #ffff00;
+  --on-accent: #000000;
+  --link: #66e0ff;
+  --focus: #ffff00;
+  --chip-on: #ffff00;
+  --on-chip-on: #000000;
+  --badge-bg: #000000;
+  --on-badge: #ffff00;
+  --badge-cf-bg: #000000;
+  --on-badge-cf: #7dffa1;
+  --danger: #ff8a8a;
+}

@@ -1,0 +1,13 @@
+node_modules/
+dist/
+coverage/
+.DS_Store
+*.log
+.env
+.env.*
+# Raw downloads (MovieLens, IMDb TSVs, Wikidata cache) never go in git.
+/raw/
+/cache/
+*.zip
+*.tsv.gz
+e2e/out/

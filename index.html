@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Pick films you like and get recommendations from MovieLens viewer ratings plus a wider all-eras catalogue. Runs entirely in your browser." />
+    <meta name="color-scheme" content="light dark" />
+    <title>Film Finder – movie recommender</title>
+    <script>
+      // Apply the saved or system theme before first paint to avoid a flash.
+      (function () {
+        try {
+          var t = localStorage.getItem('movie-recommender-theme');
+          if (t !== 'light' && t !== 'dark' && t !== 'contrast') {
+            t = matchMedia('(prefers-contrast: more)').matches ? 'contrast'
+              : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          }
+          document.documentElement.dataset.theme = t;
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
