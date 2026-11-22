@@ -156,6 +156,70 @@ describe('App', () => {
   });
 });
 
+describe('shareable links (query string)', () => {
+  const open = (search: string) => window.history.replaceState(null, '', `/${search}`);
+  const picksList = () => screen.getByRole('list', { name: /Your picks/ });
+
+  it('writes picks and filters to the URL and a fresh load with that URL rebuilds the same recommendations', async () => {
+    const { user, box, unmount } = await setup();
+    await pick(user, box, 'Heat');
+    await pick(user, box, 'Se7en');
+    await user.click(screen.getByRole('button', { name: 'Thriller' }));
+    await user.click(screen.getByRole('radio', { name: /Hidden gems/ }));
+    await user.selectOptions(screen.getByLabelText('Sort by'), 'imdb');
+    await waitFor(() =>
+      expect(window.location.search).toBe('?picks=tt0113277,tt0114369&genres=Thriller&mode=gems&sort=imdb'),
+    );
+    const before = [...document.querySelectorAll('li.card h3')].map((h) => h.textContent);
+    expect(before.length).toBeGreaterThan(0);
+    const link = window.location.search;
+    unmount();
+
+    open(link);
+    await setup();
+    await waitFor(() => expect(picksList()).toHaveTextContent('Heat (1995)'));
+    expect(picksList()).toHaveTextContent('Se7en (1995)');
+    expect(screen.getByRole('button', { name: 'Thriller' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('radio', { name: /Hidden gems/ })).toBeChecked();
+    expect(screen.getByLabelText('Sort by')).toHaveValue('imdb');
+    const after = [...document.querySelectorAll('li.card h3')].map((h) => h.textContent);
+    expect(after).toEqual(before);
+    expect(window.location.search).toBe(link);
+  });
+
+  it('restores a film that only exists in the lazy content layer once it has loaded', async () => {
+    open('?picks=tt0122690');
+    await setup();
+    await waitFor(() => expect(picksList()).toHaveTextContent('Ronin (1998)'));
+  });
+
+  it('drops stale and malformed ids and bad filter values instead of crashing', async () => {
+    open('?picks=tt9999999,junk,tt0114709,tt0114709&genres=Nonsense,Comedy&decade=1890&mode=loud&sort=x&utm=keep');
+    await setup();
+    await waitFor(() => expect(picksList()).toHaveTextContent('Toy Story (1995)'));
+    expect(within(picksList()).getAllByRole('listitem')).toHaveLength(1);
+    expect(await screen.findByRole('heading', { name: /Toy Story 2/ })).toBeInTheDocument();
+    expect(screen.getByLabelText('Decade')).toHaveValue('');
+    await waitFor(() => expect(window.location.search).toBe('?utm=keep&picks=tt0114709&genres=Comedy'));
+  });
+
+  it('drops content-layer ids when the content layer fails, keeping the MovieLens ones', async () => {
+    open('?picks=tt0122690,tt0113277');
+    await setup(loaders({ content: () => Promise.reject(new Error('404')) }));
+    await waitFor(() => expect(picksList()).toHaveTextContent('Heat (1995)'));
+    expect(picksList()).not.toHaveTextContent('Ronin');
+    await waitFor(() => expect(window.location.search).toBe('?picks=tt0113277'));
+  });
+
+  it('clearing everything leaves a clean URL', async () => {
+    open('?picks=tt0113277');
+    const { user } = await setup();
+    await waitFor(() => expect(picksList()).toHaveTextContent('Heat'));
+    await user.click(screen.getByRole('button', { name: 'Clear all' }));
+    await waitFor(() => expect(window.location.search).toBe(''));
+  });
+});
+
 describe('accessibility (axe in jsdom; colour contrast is checked separately and in the browser run)', () => {
   async function violations(container: HTMLElement) {
     const res = await axe.run(container, { rules: { 'color-contrast': { enabled: false } } });

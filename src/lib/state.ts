@@ -31,7 +31,8 @@ export type Action =
   | { type: 'setMode'; mode: Mode }
   | { type: 'setSort'; sort: SortKey }
   | { type: 'more' }
-  | { type: 'replacePicks'; picks: readonly number[] };
+  | { type: 'replacePicks'; picks: readonly number[] }
+  | { type: 'hydrate'; picks: readonly number[]; filters: Filters; mode: Mode | null; sort: SortKey | null };
 
 /** Pure reducer: always returns new objects and never mutates `state` (the old app used splice). */
 export function reducer(state: AppState, action: Action): AppState {
@@ -45,6 +46,16 @@ export function reducer(state: AppState, action: Action): AppState {
       return { ...state, picks: [], limit: PAGE_SIZE };
     case 'replacePicks':
       return { ...state, picks: [...new Set(action.picks)].slice(0, MAX_PICKS), limit: PAGE_SIZE };
+    case 'hydrate':
+      // Restores a shared link. Picks made while the link was still resolving are kept after the linked ones.
+      return {
+        ...state,
+        picks: [...new Set([...action.picks, ...state.picks])].slice(0, MAX_PICKS),
+        filters: action.filters,
+        mode: action.mode ?? state.mode,
+        sort: action.sort ?? state.sort,
+        limit: PAGE_SIZE,
+      };
     case 'toggleGenre': {
       const bit = genreBit(action.genre);
       if (bit === 0) return state;

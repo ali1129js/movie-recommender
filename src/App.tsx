@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useReducer, useState } from 'react';
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { Filters } from './components/Filters';
 import { Footer } from './components/Footer';
 import { ResultList } from './components/ResultList';
@@ -9,6 +9,7 @@ import { recommend } from './lib/recommender';
 import { buildSearchIndex, searchMovies } from './lib/search';
 import { initialState, MAX_PICKS, reducer } from './lib/state';
 import { applyTheme, initialTheme, type Theme } from './lib/theme';
+import { encodeSelection, hasSelection, parseSelection, resolvePicks } from './lib/urlState';
 import { defaultLoaders, useCatalog, type Loaders } from './lib/useCatalog';
 
 const EXAMPLES = ['Heat', 'Spirited Away', 'Alien', 'Casablanca'];
@@ -21,6 +22,11 @@ export function App({ loaders = defaultLoaders }: { loaders?: Loaders }) {
 
   useEffect(() => applyTheme(theme), [theme]);
 
+  // Shareable links: read the query string once, restore it when the catalogue can resolve it,
+  // and from then on keep the URL in step with the picks and filters.
+  const linked = useRef(parseSelection(window.location.search));
+  const [hydrated, setHydrated] = useState(() => !hasSelection(linked.current));
+
   const index = useMemo(() => (catalog ? buildSearchIndex(catalog.movies) : { entries: [] }), [catalog]);
   const picked = useMemo(() => new Set(state.picks), [state.picks]);
 
@@ -29,6 +35,32 @@ export function App({ loaders = defaultLoaders }: { loaders?: Loaders }) {
     for (const m of catalog?.movies ?? []) set.add(decadeOf(m.year));
     return [...set].sort((a, b) => a - b);
   }, [catalog]);
+
+  const contentSettled = status.phase === 'ready' && status.content !== 'loading';
+
+  useEffect(() => {
+    if (hydrated || !catalog) return;
+    const sel = linked.current;
+    const { picks, missing } = resolvePicks(sel.imdbIds, catalog);
+    const decadeKnown = sel.decade === null || decades.includes(sel.decade);
+    // Films and decades that only exist in the lazy content layer resolve once it has loaded (or failed).
+    if ((missing.length > 0 || !decadeKnown) && !contentSettled) return;
+    dispatch({
+      type: 'hydrate',
+      picks,
+      filters: { genreMask: sel.genreMask, decade: decadeKnown ? sel.decade : null },
+      mode: sel.mode,
+      sort: sel.sort,
+    });
+    setHydrated(true);
+  }, [hydrated, catalog, decades, contentSettled]);
+
+  useEffect(() => {
+    if (!hydrated || !catalog) return;
+    const { pathname, search, hash } = window.location;
+    const next = encodeSelection(state, catalog, search);
+    if (next !== search) window.history.replaceState(window.history.state, '', `${pathname}${next}${hash}`);
+  }, [hydrated, catalog, state]);
 
   const result = useMemo(() => {
     if (!catalog || state.picks.length === 0) return null;

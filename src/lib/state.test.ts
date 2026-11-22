@@ -48,4 +48,20 @@ describe('reducer', () => {
     expect(s.picks).toEqual([1, 2]);
     expect(reducer(s, { type: 'clear' }).picks).toEqual([]);
   });
+
+  it('hydrates from a shared link and keeps picks made while the link was resolving', () => {
+    const busy = reducer(reducer(initialState, { type: 'pick', index: 5 }), { type: 'more' });
+    const s = reducer(busy, {
+      type: 'hydrate',
+      picks: [2, 5, 3],
+      filters: { genreMask: genreBit('Crime'), decade: 1990 },
+      mode: 'gems',
+      sort: null,
+    });
+    expect(s.picks).toEqual([2, 5, 3]);
+    expect(s.filters).toEqual({ genreMask: genreBit('Crime'), decade: 1990 });
+    expect(s.mode).toBe('gems');
+    expect(s.sort).toBe('relevance');
+    expect(s.limit).toBe(PAGE_SIZE);
+  });
 });

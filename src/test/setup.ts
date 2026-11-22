@@ -2,7 +2,11 @@ import '@testing-library/jest-dom/vitest';
 import { afterEach } from 'vitest';
 import { cleanup } from '@testing-library/react';
 
-afterEach(() => cleanup());
+afterEach(() => {
+  cleanup();
+  // The app mirrors picks and filters into the query string; start every test from a clean URL.
+  window.history.replaceState(null, '', '/');
+});
 
 // jsdom lacks a few browser APIs the app touches.
 if (typeof window !== 'undefined') {
