@@ -1,17 +1,22 @@
-import { explain } from '../lib/explain';
-import type { Recommendation } from '../lib/recommender';
-import { imdbUrl, type Catalog } from '../lib/types';
+import { explain } from "../lib/explain";
+import type { Recommendation } from "../lib/recommender";
+import { imdbUrl, type Catalog } from "../lib/types";
 
 interface Props {
   catalog: Catalog;
   recs: readonly Recommendation[];
-  onPick: (index: number) => void;
+  picked: ReadonlySet<number>;
+  onTogglePick: (index: number) => void;
 }
 
 const votesLabel = (v: number): string =>
-  v >= 1_000_000 ? `${(v / 1_000_000).toFixed(1)}M` : v >= 1000 ? `${Math.round(v / 1000)}K` : String(v);
+  v >= 1_000_000
+    ? `${(v / 1_000_000).toFixed(1)}M`
+    : v >= 1000
+      ? `${Math.round(v / 1000)}K`
+      : String(v);
 
-export function ResultList({ catalog, recs, onPick }: Props) {
+export function ResultList({ catalog, recs, picked, onTogglePick }: Props) {
   return (
     <ol className="results">
       {recs.map((rec) => {
@@ -23,18 +28,28 @@ export function ResultList({ catalog, recs, onPick }: Props) {
               <h3>
                 {m.title} <span className="year">({m.year})</span>
               </h3>
-              <span className={rec.kind === 'content' ? 'badge badge-content' : 'badge badge-cf'}>
-                {rec.kind === 'content' ? 'Content-based' : 'Viewer ratings'}
+              <span
+                className={
+                  rec.kind === "content"
+                    ? "badge badge-content"
+                    : "badge badge-cf"
+                }
+              >
+                {rec.kind === "content" ? "Content-based" : "Viewer ratings"}
               </span>
             </div>
             <p className="meta">
-              {m.genres.join(' · ')}
+              {m.genres.join(" · ")}
               {m.imdbRating !== null && (
                 <>
-                  {' '}
+                  {" "}
                   <span className="rating">
                     <span aria-hidden="true">★</span> {m.imdbRating.toFixed(1)}
-                    <span className="visually-hidden"> out of 10 on IMDb</span> ({votesLabel(m.imdbVotes)} votes){' '}
+                    <span className="visually-hidden">
+                      {" "}
+                      out of 10 on IMDb
+                    </span>{" "}
+                    ({votesLabel(m.imdbVotes)} votes){" "}
                   </span>
                 </>
               )}
@@ -50,8 +65,14 @@ export function ResultList({ catalog, recs, onPick }: Props) {
             <p className="why">
               <strong>{why.headline}.</strong> {why.detail}
             </p>
-            <button type="button" className="link-button" onClick={() => onPick(m.index)}>
-              Add {m.title} to my picks
+            <button
+              type="button"
+              className="pick-add"
+              aria-pressed={picked.has(m.index)}
+              aria-label={`Add ${m.title} to my picks`}
+              onClick={() => onTogglePick(m.index)}
+            >
+              {picked.has(m.index) ? "Added" : `Add ${m.title} to my picks`}
             </button>
           </li>
         );

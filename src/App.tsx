@@ -255,7 +255,13 @@ export function App({ loaders = defaultLoaders }: { loaders?: Loaders }) {
                   <ResultList
                     catalog={catalog}
                     recs={result.collaborative}
-                    onPick={(i) => dispatch({ type: "pick", index: i })}
+                    picked={picked}
+                    onTogglePick={(i) =>
+                      dispatch({
+                        type: picked.has(i) ? "unpick" : "pick",
+                        index: i,
+                      })
+                    }
                   />
                 </section>
               )}
@@ -272,7 +278,13 @@ export function App({ loaders = defaultLoaders }: { loaders?: Loaders }) {
                   <ResultList
                     catalog={catalog}
                     recs={result.content}
-                    onPick={(i) => dispatch({ type: "pick", index: i })}
+                    picked={picked}
+                    onTogglePick={(i) =>
+                      dispatch({
+                        type: picked.has(i) ? "unpick" : "pick",
+                        index: i,
+                      })
+                    }
                   />
                 </section>
               )}

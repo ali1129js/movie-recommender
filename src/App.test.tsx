@@ -101,6 +101,28 @@ describe("App", () => {
     expect(within(section).getByText(/not viewer ratings/)).toBeInTheDocument();
   });
 
+  it("adds a recommendation with a real button from the keyboard", async () => {
+    const { user, box } = await setup();
+    await pick(user, box, "Toy Story");
+    const add = await screen.findByRole("button", {
+      name: "Add Toy Story 2 to my picks",
+    });
+    expect(add).toHaveAttribute("aria-pressed", "false");
+    expect(add).toHaveTextContent("Add Toy Story 2 to my picks");
+    expect(add).toHaveClass("pick-add");
+    expect(add).not.toHaveClass("link-button");
+    add.focus();
+    expect(add).toHaveFocus();
+    await user.keyboard("{Enter}");
+    expect(screen.getByRole("list", { name: /Your picks/ })).toHaveTextContent(
+      "Toy Story 2",
+    );
+    // Picks are excluded from the result lists, so the card (and its Added state) leaves the page.
+    expect(
+      screen.queryByRole("button", { name: "Add Toy Story 2 to my picks" }),
+    ).not.toBeInTheDocument();
+  });
+
   it("removing a pick updates the list; clear all empties it", async () => {
     const { user, box } = await setup();
     await pick(user, box, "Heat");
