@@ -1,15 +1,16 @@
-import '@testing-library/jest-dom/vitest';
-import { afterEach } from 'vitest';
-import { cleanup } from '@testing-library/react';
+import "@testing-library/jest-dom/vitest";
+import { afterEach } from "vitest";
+import { cleanup } from "@testing-library/react";
 
 afterEach(() => {
   cleanup();
   // The app mirrors picks and filters into the query string; start every test from a clean URL.
-  window.history.replaceState(null, '', '/');
+  window.history.replaceState(null, "", "/");
+  window.localStorage.removeItem("movie-recommender.v1.picks");
 });
 
 // jsdom lacks a few browser APIs the app touches.
-if (typeof window !== 'undefined') {
+if (typeof window !== "undefined") {
   window.matchMedia ??= ((query: string) => ({
     matches: false,
     media: query,
