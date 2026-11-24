@@ -99,6 +99,28 @@ describe("App", () => {
       within(section).getAllByText("Content-based").length,
     ).toBeGreaterThan(0);
     expect(within(section).getByText(/not viewer ratings/)).toBeInTheDocument();
+    expect(section).toHaveAttribute("data-kind", "content");
+    expect(
+      document.querySelector(
+        "section.results-section[data-kind='collaborative']",
+      ),
+    ).not.toBeNull();
+    expect(
+      document.querySelectorAll("li.card[data-kind='collaborative']").length,
+    ).toBeGreaterThan(0);
+    expect(
+      document.querySelectorAll("li.card[data-kind='content']").length,
+    ).toBeGreaterThan(0);
+    for (const card of document.querySelectorAll(
+      "li.card[data-kind='collaborative']",
+    )) {
+      expect(card).toHaveTextContent("Viewer ratings");
+    }
+    for (const card of document.querySelectorAll(
+      "li.card[data-kind='content']",
+    )) {
+      expect(card).toHaveTextContent("Content-based");
+    }
   });
 
   it("adds a recommendation with a real button from the keyboard", async () => {

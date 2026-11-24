@@ -334,11 +334,32 @@ button {
   gap: 12px;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
 }
+.results-section {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.results-section[data-kind="collaborative"] {
+  background: var(--cf-section-bg);
+  border-color: var(--cf-card-border);
+}
+.results-section[data-kind="content"] {
+  background: var(--content-section-bg);
+  border-color: var(--content-card-border);
+}
 .card {
   background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 12px 14px;
+}
+.card[data-kind="collaborative"] {
+  background: var(--cf-card-bg);
+  border-color: var(--cf-card-border);
+}
+.card[data-kind="content"] {
+  background: var(--content-card-bg);
+  border-color: var(--content-card-border);
 }
 .card-head {
   display: flex;

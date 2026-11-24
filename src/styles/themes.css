@@ -5,7 +5,7 @@
  * Keep one declaration per line: the test parses this file.
  */
 :root,
-[data-theme='light'] {
+[data-theme="light"] {
   color-scheme: light;
   --bg: #ffffff;
   --surface: #f3f5f8;
@@ -18,14 +18,20 @@
   --focus: #1d4ed8;
   --chip-on: #14171c;
   --on-chip-on: #ffffff;
-  --badge-bg: #fff1cc;
-  --on-badge: #4a2f00;
-  --badge-cf-bg: #dff3e6;
-  --on-badge-cf: #0d4a26;
+  --badge-bg: #d4f0e2;
+  --on-badge: #0d4a26;
+  --badge-cf-bg: #d9e4ff;
+  --on-badge-cf: #163a8a;
+  --cf-section-bg: #e8f0ff;
+  --cf-card-bg: #d9e4ff;
+  --cf-card-border: #2f5bb8;
+  --content-section-bg: #e6f6ee;
+  --content-card-bg: #d4f0e2;
+  --content-card-border: #1c6b47;
   --danger: #b00020;
 }
 
-[data-theme='dark'] {
+[data-theme="dark"] {
   color-scheme: dark;
   --bg: #0f1217;
   --surface: #1a1f28;
@@ -38,14 +44,20 @@
   --focus: #9fc0ff;
   --chip-on: #eceef2;
   --on-chip-on: #0f1217;
-  --badge-bg: #3b2f10;
-  --on-badge: #ffe3a1;
-  --badge-cf-bg: #14352a;
-  --on-badge-cf: #aef0c6;
+  --badge-bg: #163328;
+  --on-badge: #aef0c6;
+  --badge-cf-bg: #1a2740;
+  --on-badge-cf: #c5d8ff;
+  --cf-section-bg: #152033;
+  --cf-card-bg: #1a2740;
+  --cf-card-border: #8ab4ff;
+  --content-section-bg: #13241c;
+  --content-card-bg: #163328;
+  --content-card-border: #5dcaa0;
   --danger: #ff9aa8;
 }
 
-[data-theme='contrast'] {
+[data-theme="contrast"] {
   color-scheme: dark;
   --bg: #000000;
   --surface: #000000;
@@ -58,9 +70,15 @@
   --focus: #ffff00;
   --chip-on: #ffff00;
   --on-chip-on: #000000;
-  --badge-bg: #000000;
-  --on-badge: #ffff00;
-  --badge-cf-bg: #000000;
-  --on-badge-cf: #7dffa1;
+  --badge-bg: #001400;
+  --on-badge: #7dffa1;
+  --badge-cf-bg: #000018;
+  --on-badge-cf: #9fc0ff;
+  --cf-section-bg: #000018;
+  --cf-card-bg: #000018;
+  --cf-card-border: #8ab4ff;
+  --content-section-bg: #001400;
+  --content-card-bg: #001400;
+  --content-card-border: #7dffa1;
   --danger: #ff8a8a;
 }

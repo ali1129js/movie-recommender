@@ -250,7 +250,11 @@ export function App({ loaders = defaultLoaders }: { loaders?: Loaders }) {
                 </p>
               )}
               {result.collaborative.length > 0 && (
-                <section aria-labelledby="cf-h">
+                <section
+                  className="results-section"
+                  data-kind="collaborative"
+                  aria-labelledby="cf-h"
+                >
                   <h3 id="cf-h">From viewer ratings (MovieLens)</h3>
                   <ResultList
                     catalog={catalog}
@@ -266,7 +270,11 @@ export function App({ loaders = defaultLoaders }: { loaders?: Loaders }) {
                 </section>
               )}
               {result.content.length > 0 && (
-                <section aria-labelledby="content-h">
+                <section
+                  className="results-section"
+                  data-kind="content"
+                  aria-labelledby="content-h"
+                >
                   <h3 id="content-h">
                     From the wider catalogue (content-based)
                   </h3>
