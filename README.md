@@ -35,6 +35,8 @@ npm run data:build   # rebuild public/data/*.json (see docs/DATA.md, needs raw d
   blockbusters (for example, *Dune* (2021) no longer surfaces Marvel films because Josh Brolin is in both).
 * Pure, immutable state (`src/lib/state.ts`); search is plain-text normalisation, never a RegExp built from input.
 
+See [docs/LEARN.md](docs/LEARN.md) for why the two layers are separate, why search never builds a RegExp from input, and why the content layer is lazy-loaded.
+
 ## Size (gzipped)
 
 | File | Size |
