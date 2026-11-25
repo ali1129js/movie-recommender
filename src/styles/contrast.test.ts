@@ -65,21 +65,20 @@ const UI_PAIRS: [string, string][] = [
 ];
 
 describe("themes.css", () => {
-  it("defines exactly the three themes with the same tokens", () => {
-    expect(Object.keys(themes).sort()).toEqual(["contrast", "dark", "light"]);
-    const tokens = Object.keys(themes.light ?? {}).sort();
+  it("defines exactly the three gloss themes with the same tokens", () => {
+    expect(Object.keys(themes).sort()).toEqual(["graphite", "khaki", "midnight"]);
+    const tokens = Object.keys(themes.khaki ?? {}).sort();
     expect(tokens.length).toBeGreaterThan(10);
     for (const t of Object.values(themes))
       expect(Object.keys(t).sort()).toEqual(tokens);
   });
 
   for (const [name, vars] of Object.entries(themes)) {
-    const textMin = name === "contrast" ? 7 : 4.5;
     describe(`${name} theme`, () => {
-      it.each(TEXT_PAIRS)(`text %s on %s meets ${textMin}:1`, (fg, bg) => {
+      it.each(TEXT_PAIRS)("text %s on %s meets 4.5:1", (fg, bg) => {
         expect(
           contrastRatio(vars[fg] as string, vars[bg] as string),
-        ).toBeGreaterThanOrEqual(textMin);
+        ).toBeGreaterThanOrEqual(4.5);
       });
       it.each(UI_PAIRS)("UI %s against %s meets 3:1", (fg, bg) => {
         expect(
@@ -88,6 +87,14 @@ describe("themes.css", () => {
       });
     });
   }
+});
+
+describe("Graphite control borders", () => {
+  it("meets 3:1 against the Graphite background and surface", () => {
+    const g = themes.graphite ?? {};
+    expect(contrastRatio(g.border as string, g.bg as string)).toBeGreaterThanOrEqual(3);
+    expect(contrastRatio(g.border as string, g.surface as string)).toBeGreaterThanOrEqual(3);
+  });
 });
 
 describe("contrastRatio", () => {

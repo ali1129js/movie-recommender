@@ -247,13 +247,26 @@ describe("App", () => {
 
   it("switches theme and persists it", async () => {
     const { user } = await setup();
-    await user.click(screen.getByRole("radio", { name: "High contrast" }));
-    expect(document.documentElement.dataset.theme).toBe("contrast");
+    await user.click(screen.getByRole("radio", { name: "Midnight" }));
+    expect(document.documentElement.dataset.theme).toBe("midnight");
     expect(window.localStorage.getItem("movie-recommender-theme")).toBe(
-      "contrast",
+      "midnight",
     );
-    await user.click(screen.getByRole("radio", { name: "Dark" }));
-    expect(document.documentElement.dataset.theme).toBe("dark");
+    await user.click(screen.getByRole("radio", { name: "Graphite" }));
+    expect(document.documentElement.dataset.theme).toBe("graphite");
+  });
+
+  it("motion is static by default and can be turned on", async () => {
+    const { user } = await setup();
+    const toggle = screen.getByRole("button", { name: "Animated motion" });
+    expect(toggle).toHaveAttribute("aria-pressed", "false");
+    expect(document.documentElement.dataset.motion).toBe("static");
+    await user.click(toggle);
+    expect(toggle).toHaveAttribute("aria-pressed", "true");
+    expect(document.documentElement.dataset.motion).toBe("animated");
+    expect(window.localStorage.getItem("movie-recommender-motion")).toBe(
+      "animated",
+    );
   });
 });
 

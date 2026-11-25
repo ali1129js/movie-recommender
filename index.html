@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="khaki" data-motion="static">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" href="data:," />
@@ -8,15 +8,21 @@
     <meta name="color-scheme" content="light dark" />
     <title>Film Finder – movie recommender</title>
     <script>
-      // Apply the saved or system theme before first paint to avoid a flash.
+      // Apply the saved or system theme and motion before first paint to avoid a flash.
+      // Keep in sync with src/lib/theme.ts (light/dark/contrast migrate; contrast -> graphite).
       (function () {
         try {
           var t = localStorage.getItem('movie-recommender-theme');
-          if (t !== 'light' && t !== 'dark' && t !== 'contrast') {
-            t = matchMedia('(prefers-contrast: more)').matches ? 'contrast'
-              : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          if (t === 'light') t = 'khaki';
+          else if (t === 'dark' || t === 'contrast') t = 'graphite';
+          else if (t !== 'khaki' && t !== 'graphite' && t !== 'midnight') {
+            t = matchMedia('(prefers-color-scheme: dark)').matches ? 'graphite' : 'khaki';
           }
           document.documentElement.dataset.theme = t;
+          document.documentElement.style.colorScheme = t === 'khaki' ? 'light' : 'dark';
+          var m = localStorage.getItem('movie-recommender-motion') === 'animated' ? 'animated' : 'static';
+          if (matchMedia('(prefers-reduced-motion: reduce)').matches) m = 'static';
+          document.documentElement.dataset.motion = m;
         } catch (e) {}
       })();
     </script>

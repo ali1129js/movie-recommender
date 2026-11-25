@@ -7,8 +7,8 @@ No server, no API keys, nothing you pick leaves your browser.
   (item-item adjusted cosine, shrinkage, mild popularity damping).
 * **Wider catalogue layer**: 7,032 more titles from the silent era to 2026 (Wikidata, CC0), matched by genre, director,
   cast and era, always labelled **Content-based** in the UI. It is lazy-loaded after the first render.
-* Multi-film selection, genre and decade filters, popular vs hidden-gems, sort options, three themes
-  (light, dark, high contrast), keyboard-accessible combobox search, IMDb ratings with link-out.
+* Multi-film selection, genre and decade filters, popular vs hidden-gems, sort options, three gloss themes
+  (Khaki, Graphite, Midnight) and a motion toggle (static by default), keyboard-accessible combobox search, IMDb ratings with link-out.
 * Shareable links: picks and filters live in the URL (`?picks=tt0113277,tt0114369&genres=Crime&sort=imdb`), so a copied
   link or a refresh rebuilds the same recommendations. Films are stored by IMDb id; unknown or stale ids are dropped
   (`src/lib/urlState.ts`).
@@ -18,10 +18,10 @@ No server, no API keys, nothing you pick leaves your browser.
 ```
 npm install
 npm run dev          # local dev server
-npm test             # 213 tests (Vitest)
+npm test             # 287 tests (Vitest)
 npm run typecheck    # strict TS, noUncheckedIndexedAccess
 npm run build        # typecheck + production build into dist/
-VITE_BASE=/ npm run build && npm run shots   # headless Chrome e2e: screenshots, axe (incl. contrast) for 3 themes x 2 widths
+VITE_BASE=/ npm run build && npm run shots   # headless Chrome e2e: screenshots, axe (incl. contrast) for 3 gloss themes x 2 widths
 npm run data:build   # rebuild public/data/*.json (see docs/DATA.md, needs raw downloads)
 ```
 

@@ -1,51 +1,53 @@
 /*
  * Theme tokens. Every text/background and UI-boundary pair below is checked by
- * src/styles/contrast.test.ts (WCAG 2.2: 4.5:1 for text, 3:1 for UI boundaries and focus rings;
- * the high-contrast theme must reach 7:1 for text).
+ * src/styles/contrast.test.ts (WCAG 2.2: 4.5:1 for text, 3:1 for UI boundaries and focus rings,
+ * including control borders on Graphite). There is no high-contrast theme.
  * Keep one declaration per line: the test parses this file.
+ * :root and [data-theme] have the same specificity, so the khaki block is
+ * :root:not([data-theme]), [data-theme="khaki"] so a later theme cannot leak onto an unset root.
  */
-:root,
-[data-theme="light"] {
+:root:not([data-theme]),
+[data-theme="khaki"] {
   color-scheme: light;
-  --bg: #ffffff;
-  --surface: #f3f5f8;
-  --text: #14171c;
-  --text-muted: #4a5262;
-  --border: #6b7280;
-  --accent: #1d4ed8;
+  --bg: #d8cdae;
+  --surface: #ebe4d0;
+  --text: #2a2418;
+  --text-muted: #554c3e;
+  --border: #6f6550;
+  --accent: #214bb3;
   --on-accent: #ffffff;
-  --link: #1a47c0;
-  --focus: #1d4ed8;
-  --chip-on: #14171c;
-  --on-chip-on: #ffffff;
-  --badge-bg: #d4f0e2;
+  --link: #214bb3;
+  --focus: #214bb3;
+  --chip-on: #2a2418;
+  --on-chip-on: #ebe4d0;
+  --badge-bg: #c4e3d2;
   --on-badge: #0d4a26;
-  --badge-cf-bg: #d9e4ff;
+  --badge-cf-bg: #d0dbf7;
   --on-badge-cf: #163a8a;
-  --cf-section-bg: #e8f0ff;
-  --cf-card-bg: #d9e4ff;
+  --cf-section-bg: #d4dcee;
+  --cf-card-bg: #c8d4f0;
   --cf-card-border: #2f5bb8;
-  --content-section-bg: #e6f6ee;
-  --content-card-bg: #d4f0e2;
+  --content-section-bg: #d0e6da;
+  --content-card-bg: #c0dcce;
   --content-card-border: #1c6b47;
-  --danger: #b00020;
+  --danger: #9f2235;
 }
 
-[data-theme="dark"] {
+[data-theme="graphite"] {
   color-scheme: dark;
-  --bg: #0f1217;
-  --surface: #1a1f28;
-  --text: #eceef2;
-  --text-muted: #a9b1bf;
-  --border: #7c8697;
-  --accent: #8ab4ff;
+  --bg: #1e2329;
+  --surface: #2a313a;
+  --text: #e8ecf1;
+  --text-muted: #a7b0bc;
+  --border: #8a95a5;
+  --accent: #8daeff;
   --on-accent: #0a1020;
-  --link: #9fc0ff;
-  --focus: #9fc0ff;
-  --chip-on: #eceef2;
-  --on-chip-on: #0f1217;
+  --link: #8daeff;
+  --focus: #8daeff;
+  --chip-on: #e8ecf1;
+  --on-chip-on: #1e2329;
   --badge-bg: #163328;
-  --on-badge: #aef0c6;
+  --on-badge: #aeefd0;
   --badge-cf-bg: #1a2740;
   --on-badge-cf: #c5d8ff;
   --cf-section-bg: #152033;
@@ -54,31 +56,31 @@
   --content-section-bg: #13241c;
   --content-card-bg: #163328;
   --content-card-border: #5dcaa0;
-  --danger: #ff9aa8;
+  --danger: #e9929f;
 }
 
-[data-theme="contrast"] {
+[data-theme="midnight"] {
   color-scheme: dark;
-  --bg: #000000;
-  --surface: #000000;
-  --text: #ffffff;
-  --text-muted: #ffffff;
-  --border: #ffffff;
-  --accent: #ffff00;
-  --on-accent: #000000;
-  --link: #66e0ff;
-  --focus: #ffff00;
-  --chip-on: #ffff00;
-  --on-chip-on: #000000;
-  --badge-bg: #001400;
-  --on-badge: #7dffa1;
-  --badge-cf-bg: #000018;
-  --on-badge-cf: #9fc0ff;
-  --cf-section-bg: #000018;
-  --cf-card-bg: #000018;
-  --cf-card-border: #8ab4ff;
-  --content-section-bg: #001400;
-  --content-card-bg: #001400;
-  --content-card-border: #7dffa1;
-  --danger: #ff8a8a;
+  --bg: #1b1428;
+  --surface: #2a2238;
+  --text: #ede7f6;
+  --text-muted: #c9c2d6;
+  --border: #8a8298;
+  --accent: #789fff;
+  --on-accent: #0a1020;
+  --link: #789fff;
+  --focus: #789fff;
+  --chip-on: #ede7f6;
+  --on-chip-on: #1b1428;
+  --badge-bg: #163328;
+  --on-badge: #aeefd0;
+  --badge-cf-bg: #1e1a38;
+  --on-badge-cf: #c5d8ff;
+  --cf-section-bg: #1a1630;
+  --cf-card-bg: #1e1a38;
+  --cf-card-border: #8aa0ff;
+  --content-section-bg: #13241c;
+  --content-card-bg: #163328;
+  --content-card-border: #5dcaa0;
+  --danger: #e78c9a;
 }

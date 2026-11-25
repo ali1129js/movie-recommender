@@ -10,6 +10,7 @@ import { Filters } from "./components/Filters";
 import { Footer } from "./components/Footer";
 import { ResultList } from "./components/ResultList";
 import { SearchBox } from "./components/SearchBox";
+import { MotionToggle } from "./components/MotionToggle";
 import { ThemeSwitcher } from "./components/ThemeSwitcher";
 import { decadeOf } from "./lib/genres";
 import { recommend } from "./lib/recommender";
@@ -131,7 +132,10 @@ export function App({ loaders = defaultLoaders }: { loaders?: Loaders }) {
             plus the whole history of cinema.
           </p>
         </div>
-        <ThemeSwitcher theme={theme} onChange={setTheme} />
+        <div className="toolbar">
+          <ThemeSwitcher theme={theme} onChange={setTheme} />
+          <MotionToggle />
+        </div>
       </header>
 
       <main id="main">

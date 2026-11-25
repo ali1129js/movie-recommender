@@ -444,9 +444,49 @@ button {
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  button,
-  .chip {
-    transition: background-color 0.12s;
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: flex-end;
+}
+.motion-toggle {
+  box-sizing: border-box;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  display: inline-grid;
+  place-items: center;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+}
+.motion-toggle[aria-pressed="true"] {
+  background: var(--accent);
+  color: var(--on-accent);
+  border-color: var(--accent);
+}
+.motion-toggle:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.motion-toggle:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+.motion-toggle svg {
+  display: block;
+}
+
+html[data-motion="animated"] button,
+html[data-motion="animated"] .chip {
+  transition: background-color 0.12s;
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-motion="animated"] button,
+  html[data-motion="animated"] .chip {
+    transition: none;
   }
 }

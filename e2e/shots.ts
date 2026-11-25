@@ -1,6 +1,6 @@
 /**
  * Headless end-to-end run: serves the production build, walks the main flow in real Chrome for all
- * three themes at 1280 and 390 px, takes screenshots and runs axe-core (including colour contrast).
+ * three gloss themes at 1280 and 390 px, takes screenshots and runs axe-core (including colour contrast).
  * Usage: VITE_BASE=/ npm run build && npm run shots   (set SHOTS_DIR to change the output folder)
  */
 import { createReadStream, existsSync, readFileSync, statSync } from 'node:fs';
@@ -12,7 +12,7 @@ import { chromium, type Page } from 'playwright-core';
 const OUT = process.env.SHOTS_DIR ?? join(process.cwd(), 'e2e/out');
 const DIST = join(process.cwd(), 'dist');
 const CHROME = process.env.CHROME_PATH ?? '/usr/bin/google-chrome';
-const THEMES = ['light', 'dark', 'contrast'] as const;
+const THEMES = ['khaki', 'graphite', 'midnight'] as const;
 const VIEWPORTS = [
   { name: '1280', width: 1280, height: 900 },
   { name: '390', width: 390, height: 844 },
@@ -115,10 +115,10 @@ async function main(): Promise<void> {
       }
     }
 
-    // The headline screenshots: one recommendation with its explanations, light theme.
+    // The headline screenshots: one recommendation with its explanations, Khaki theme.
     for (const vp of VIEWPORTS) {
       const context = await browser.newContext({ viewport: { width: vp.width, height: vp.height } });
-      await context.addInitScript(`localStorage.setItem('movie-recommender-theme', 'light')`);
+      await context.addInitScript(`localStorage.setItem('movie-recommender-theme', 'khaki')`);
       const page = await context.newPage();
       await page.goto(server.url);
       await page.waitForFunction(() => !document.body.innerText.includes('Loading the wider'), null, { timeout: 30_000 });
