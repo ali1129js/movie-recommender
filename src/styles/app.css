@@ -163,6 +163,35 @@ button {
   border-color: var(--border);
 }
 
+.card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+  align-items: center;
+}
+.card-actions .pick-add {
+  margin-top: 0;
+}
+.hide-btn {
+  min-height: 44px;
+  min-width: 44px;
+  font-weight: 600;
+  background: var(--surface);
+  color: var(--text);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  padding: 0 12px;
+  cursor: pointer;
+}
+.hide-btn:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+.hidden-list {
+  margin-top: 16px;
+}
+
 .hint {
   color: var(--text-muted);
   margin: 8px 0;

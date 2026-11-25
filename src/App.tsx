@@ -22,6 +22,14 @@ import {
   readStoredPicks,
   writeStoredPicks,
 } from "./lib/pickStore";
+import {
+  hideTitle,
+  indicesForImdbIds,
+  mergedHidden,
+  readHiddenIds,
+  unhideTitle,
+  writeHiddenIds,
+} from "./lib/hideStore";
 import { encodeSelection, parseSelection, resolvePicks } from "./lib/urlState";
 import { defaultLoaders, useCatalog, type Loaders } from "./lib/useCatalog";
 
@@ -32,8 +40,16 @@ export function App({ loaders = defaultLoaders }: { loaders?: Loaders }) {
   const { catalog, status } = useCatalog(loaders, attempt);
   const [state, dispatch] = useReducer(reducer, initialState);
   const [theme, setTheme] = useState<Theme>(() => initialTheme());
+  const [hiddenSession, setHiddenSession] = useState<number[]>([]);
+  const [hiddenPersistent, setHiddenPersistent] = useState<number[]>(() =>
+    readHiddenIds(),
+  );
 
   useEffect(() => applyTheme(theme), [theme]);
+
+  useEffect(() => {
+    writeHiddenIds(hiddenPersistent);
+  }, [hiddenPersistent]);
 
   // Restore picks from the URL if it has any, otherwise from the Zod-checked localStorage copy.
   // A shared link always wins when both are present. After that, keep the URL and the store in step.
@@ -89,6 +105,24 @@ export function App({ loaders = defaultLoaders }: { loaders?: Loaders }) {
     writeStoredPicks(imdbIdsForPicks(state.picks, catalog));
   }, [hydrated, catalog, state]);
 
+  const hiddenIds = useMemo(
+    () => mergedHidden(hiddenSession, hiddenPersistent),
+    [hiddenSession, hiddenPersistent],
+  );
+
+  const seedImdbIds = useMemo(
+    () => (catalog ? imdbIdsForPicks(state.picks, catalog) : []),
+    [catalog, state.picks],
+  );
+
+  const hiddenIndices = useMemo(() => {
+    if (!catalog) return new Set<number>();
+    const seedSet = new Set(state.picks);
+    return new Set(
+      indicesForImdbIds(hiddenIds, catalog).filter((i) => !seedSet.has(i)),
+    );
+  }, [catalog, hiddenIds, state.picks]);
+
   const result = useMemo(() => {
     if (!catalog || state.picks.length === 0) return null;
     return recommend(catalog, state.picks, {
@@ -96,6 +130,7 @@ export function App({ loaders = defaultLoaders }: { loaders?: Loaders }) {
       filters: state.filters,
       limit: state.limit,
       sort: state.sort,
+      exclude: hiddenIndices,
     });
   }, [
     catalog,
@@ -104,14 +139,50 @@ export function App({ loaders = defaultLoaders }: { loaders?: Loaders }) {
     state.filters,
     state.limit,
     state.sort,
+    hiddenIndices,
   ]);
+
+  const applyHide = useCallback(
+    (index: number, persist: boolean) => {
+      if (!catalog) return;
+      const movie = catalog.movies[index];
+      if (!movie) return;
+      const next = hideTitle(
+        movie.imdbId,
+        persist,
+        hiddenSession,
+        hiddenPersistent,
+        seedImdbIds,
+      );
+      setHiddenSession(next.session);
+      setHiddenPersistent(next.persistent);
+    },
+    [catalog, hiddenSession, hiddenPersistent, seedImdbIds],
+  );
+
+  const clearHidden = useCallback(() => {
+    setHiddenSession([]);
+    setHiddenPersistent([]);
+  }, []);
 
   const pickByTitle = useCallback(
     (title: string) => {
       const hit = searchMovies(index, title, { limit: 1 })[0];
-      if (hit) dispatch({ type: "pick", index: hit.index });
+      if (hit) {
+        const movie = catalog?.movies[hit.index];
+        if (movie) {
+          const next = unhideTitle(
+            movie.imdbId,
+            hiddenSession,
+            hiddenPersistent,
+          );
+          setHiddenSession(next.session);
+          setHiddenPersistent(next.persistent);
+        }
+        dispatch({ type: "pick", index: hit.index });
+      }
     },
-    [index],
+    [index, catalog, hiddenSession, hiddenPersistent],
   );
 
   const ready = status.phase === "ready" && catalog !== null;
@@ -159,7 +230,16 @@ export function App({ loaders = defaultLoaders }: { loaders?: Loaders }) {
             index={index}
             picked={picked}
             disabled={!ready}
-            onPick={(m) => dispatch({ type: "pick", index: m.index })}
+            onPick={(m) => {
+              const next = unhideTitle(
+                m.imdbId,
+                hiddenSession,
+                hiddenPersistent,
+              );
+              setHiddenSession(next.session);
+              setHiddenPersistent(next.persistent);
+              dispatch({ type: "pick", index: m.index });
+            }}
           />
           {ready && state.picks.length === 0 && (
             <p className="examples">
@@ -249,8 +329,9 @@ export function App({ loaders = defaultLoaders }: { loaders?: Loaders }) {
             <>
               {total === 0 && (
                 <p className="hint" data-testid="no-results">
-                  No recommendations match these filters. Try removing a genre
-                  or choosing “Any decade”.
+                  {hiddenIndices.size > 0
+                    ? "No recommendations left. Clear hidden titles or pick another film."
+                    : "No recommendations match these filters. Try removing a genre or choosing “Any decade”."}
                 </p>
               )}
               {result.collaborative.length > 0 && (
@@ -264,12 +345,25 @@ export function App({ loaders = defaultLoaders }: { loaders?: Loaders }) {
                     catalog={catalog}
                     recs={result.collaborative}
                     picked={picked}
-                    onTogglePick={(i) =>
+                    onTogglePick={(i) => {
+                      if (!picked.has(i)) {
+                        const movie = catalog.movies[i];
+                        if (movie) {
+                          const next = unhideTitle(
+                            movie.imdbId,
+                            hiddenSession,
+                            hiddenPersistent,
+                          );
+                          setHiddenSession(next.session);
+                          setHiddenPersistent(next.persistent);
+                        }
+                      }
                       dispatch({
                         type: picked.has(i) ? "unpick" : "pick",
                         index: i,
-                      })
-                    }
+                      });
+                    }}
+                    onHide={applyHide}
                   />
                 </section>
               )}
@@ -291,12 +385,25 @@ export function App({ loaders = defaultLoaders }: { loaders?: Loaders }) {
                     catalog={catalog}
                     recs={result.content}
                     picked={picked}
-                    onTogglePick={(i) =>
+                    onTogglePick={(i) => {
+                      if (!picked.has(i)) {
+                        const movie = catalog.movies[i];
+                        if (movie) {
+                          const next = unhideTitle(
+                            movie.imdbId,
+                            hiddenSession,
+                            hiddenPersistent,
+                          );
+                          setHiddenSession(next.session);
+                          setHiddenPersistent(next.persistent);
+                        }
+                      }
                       dispatch({
                         type: picked.has(i) ? "unpick" : "pick",
                         index: i,
-                      })
-                    }
+                      });
+                    }}
+                    onHide={applyHide}
                   />
                 </section>
               )}
@@ -310,6 +417,22 @@ export function App({ loaders = defaultLoaders }: { loaders?: Loaders }) {
                     Show more
                   </button>
                 )}
+              {hiddenIds.length > 0 && (
+                <div className="hidden-list">
+                  <h3 id="hidden-h">Hidden titles ({hiddenIds.length})</h3>
+                  <p className="hint">
+                    These films are left out of recommendations. Session hides
+                    last until you close the tab; remembered hides are kept.
+                  </p>
+                  <button
+                    type="button"
+                    className="link-button"
+                    onClick={clearHidden}
+                  >
+                    Show hidden titles again
+                  </button>
+                </div>
+              )}
             </>
           )}
         </section>

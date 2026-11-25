@@ -25,6 +25,7 @@ describe("ResultList add button", () => {
         recs={[rec]}
         picked={new Set()}
         onTogglePick={onTogglePick}
+        onHide={vi.fn()}
       />,
     );
     const add = screen.getByRole("button", {
@@ -43,6 +44,7 @@ describe("ResultList add button", () => {
         recs={[rec]}
         picked={new Set([toy2.index])}
         onTogglePick={onTogglePick}
+        onHide={vi.fn()}
       />,
     );
     const added = screen.getByRole("button", {
@@ -54,5 +56,29 @@ describe("ResultList add button", () => {
     await user.keyboard(" ");
     expect(onTogglePick).toHaveBeenCalledTimes(2);
     expect(onTogglePick).toHaveBeenLastCalledWith(toy2.index);
+  });
+});
+
+describe("ResultList hide buttons", () => {
+  it("can hide a title for this session or persistently", async () => {
+    const user = userEvent.setup();
+    const onHide = vi.fn();
+    render(
+      <ResultList
+        catalog={catalog}
+        recs={[rec]}
+        picked={new Set()}
+        onTogglePick={vi.fn()}
+        onHide={onHide}
+      />,
+    );
+    await user.click(
+      screen.getByRole("button", { name: "Hide Toy Story 2 this session" }),
+    );
+    expect(onHide).toHaveBeenCalledWith(toy2.index, false);
+    await user.click(
+      screen.getByRole("button", { name: "Don't show Toy Story 2 again" }),
+    );
+    expect(onHide).toHaveBeenCalledWith(toy2.index, true);
   });
 });

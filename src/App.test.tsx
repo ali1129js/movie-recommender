@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import axe from "axe-core";
 import { describe, expect, it, vi } from "vitest";
 import { App } from "./App";
+import { HIDDEN_KEY, readHiddenIds } from "./lib/hideStore";
 import { PICKS_KEY, readStoredPicks, writeStoredPicks } from "./lib/pickStore";
 import { contentRaw, coreRaw } from "./test/fixtures";
 import type { Loaders } from "./lib/useCatalog";
@@ -419,5 +420,69 @@ describe("accessibility (axe in jsdom; colour contrast is checked separately and
     await user.click(screen.getByRole("button", { name: "Thriller" }));
     await user.type(box, "toy");
     expect(await violations(container)).toEqual([]);
+  });
+});
+
+describe("not interested hides", () => {
+  it("hides a recommendation for this session, and persistently, and can clear them", async () => {
+    const { user, box } = await setup();
+    await pick(user, box, "Toy Story");
+    const card = (
+      await screen.findByRole("heading", { name: /Toy Story 2/ })
+    ).closest("li") as HTMLElement;
+    await user.click(
+      within(card).getByRole("button", {
+        name: "Hide Toy Story 2 this session",
+      }),
+    );
+    expect(
+      screen.queryByRole("heading", { name: /Toy Story 2/ }),
+    ).not.toBeInTheDocument();
+    expect(readHiddenIds()).toEqual([]);
+    expect(
+      screen.getByRole("heading", { name: /Hidden titles/ }),
+    ).toBeInTheDocument();
+
+    await user.click(
+      screen.getByRole("button", { name: "Show hidden titles again" }),
+    );
+    expect(
+      screen.queryByRole("heading", { name: /Hidden titles/ }),
+    ).not.toBeInTheDocument();
+    const cardAgain = (
+      await screen.findByRole("heading", { name: /Toy Story 2/ })
+    ).closest("li") as HTMLElement;
+    await user.click(
+      within(cardAgain).getByRole("button", {
+        name: "Don't show Toy Story 2 again",
+      }),
+    );
+    expect(
+      screen.queryByRole("heading", { name: /Toy Story 2/ }),
+    ).not.toBeInTheDocument();
+    expect(readHiddenIds()).toEqual([120363]);
+  });
+
+  it("does not let a seed hide itself, and survives an already-empty result set", async () => {
+    window.localStorage.setItem(
+      HIDDEN_KEY,
+      JSON.stringify({
+        // Hide every fixture film except Toy Story (114709)
+        imdbIds: [
+          120363, 113277, 114369, 133093, 999999, 17136, 122690, 1160419,
+        ],
+      }),
+    );
+    const { user, box } = await setup();
+    await pick(user, box, "Toy Story");
+    expect(screen.getByRole("list", { name: /Your picks/ })).toHaveTextContent(
+      "Toy Story (1995)",
+    );
+    expect(screen.getByTestId("no-results")).toHaveTextContent(
+      "Clear hidden titles or pick another film",
+    );
+    expect(
+      screen.getByRole("button", { name: "Show hidden titles again" }),
+    ).toBeInTheDocument();
   });
 });

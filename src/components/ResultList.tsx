@@ -7,6 +7,7 @@ interface Props {
   recs: readonly Recommendation[];
   picked: ReadonlySet<number>;
   onTogglePick: (index: number) => void;
+  onHide: (index: number, persist: boolean) => void;
 }
 
 const votesLabel = (v: number): string =>
@@ -16,7 +17,13 @@ const votesLabel = (v: number): string =>
       ? `${Math.round(v / 1000)}K`
       : String(v);
 
-export function ResultList({ catalog, recs, picked, onTogglePick }: Props) {
+export function ResultList({
+  catalog,
+  recs,
+  picked,
+  onTogglePick,
+  onHide,
+}: Props) {
   return (
     <ol className="results">
       {recs.map((rec) => {
@@ -65,15 +72,33 @@ export function ResultList({ catalog, recs, picked, onTogglePick }: Props) {
             <p className="why">
               <strong>{why.headline}.</strong> {why.detail}
             </p>
-            <button
-              type="button"
-              className="pick-add"
-              aria-pressed={picked.has(m.index)}
-              aria-label={`Add ${m.title} to my picks`}
-              onClick={() => onTogglePick(m.index)}
-            >
-              {picked.has(m.index) ? "Added" : `Add ${m.title} to my picks`}
-            </button>
+            <div className="card-actions">
+              <button
+                type="button"
+                className="pick-add"
+                aria-pressed={picked.has(m.index)}
+                aria-label={`Add ${m.title} to my picks`}
+                onClick={() => onTogglePick(m.index)}
+              >
+                {picked.has(m.index) ? "Added" : `Add ${m.title} to my picks`}
+              </button>
+              <button
+                type="button"
+                className="hide-btn"
+                aria-label={`Hide ${m.title} this session`}
+                onClick={() => onHide(m.index, false)}
+              >
+                Not interested
+              </button>
+              <button
+                type="button"
+                className="hide-btn"
+                aria-label={`Don't show ${m.title} again`}
+                onClick={() => onHide(m.index, true)}
+              >
+                Don't show again
+              </button>
+            </div>
           </li>
         );
       })}
