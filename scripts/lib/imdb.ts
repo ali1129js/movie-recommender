@@ -66,3 +66,28 @@ export async function readImdbCandidates(path: string): Promise<Map<number, Imdb
   }
   return map;
 }
+
+/**
+ * Language of the original title, from title.akas.tsv.gz (ISO 639-1 when present).
+ * Only rows marked isOriginalTitle=1 with a real language code are used. This is a
+ * fallback when Wikidata P364 is missing; it is not as reliable as P364.
+ */
+export async function readOriginalTitleLanguages(
+  path: string,
+  wanted: ReadonlySet<number>,
+): Promise<Map<number, string[]>> {
+  const map = new Map<number, string[]>();
+  for await (const line of lines(path)) {
+    const f = line.split('\t');
+    const [tconst, , , , language, , , isOriginal] = f;
+    if (!tconst || isOriginal !== '1' || !language || language === '\\N') continue;
+    const code = language.toLowerCase();
+    if (!/^[a-z]{2}$/.test(code)) continue;
+    const id = numericId(tconst);
+    if (!wanted.has(id)) continue;
+    const list = map.get(id) ?? [];
+    if (!list.includes(code)) list.push(code);
+    map.set(id, list);
+  }
+  return map;
+}

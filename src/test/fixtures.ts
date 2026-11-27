@@ -60,4 +60,13 @@ export const contentRaw = {
   ],
 };
 
-export const fixture = (withContent = true): Catalog => buildCatalog(coreRaw, withContent ? contentRaw : null);
+export const languagesRaw = {
+  v: 1 as const,
+  built: '2026-10-29',
+  source: 'fixture',
+  core: ['en', 'en', 'en', 'en', 'en', 'en'],
+  content: ['de', 'en', 'en'],
+};
+
+export const fixture = (withContent = true): Catalog =>
+  buildCatalog(coreRaw, withContent ? contentRaw : null, languagesRaw);

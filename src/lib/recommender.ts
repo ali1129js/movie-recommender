@@ -22,9 +22,11 @@ export interface Filters {
   genreMask: number;
   /** Decade start year (e.g. 1990) or null. */
   decade: number | null;
+  /** ISO 639-1 original language, or null for any. */
+  language: string | null;
 }
 
-export const NO_FILTERS: Filters = { genreMask: 0, decade: null };
+export const NO_FILTERS: Filters = { genreMask: 0, decade: null, language: null };
 
 export interface Reason {
   /** Index of the picked film this reason is about. */
@@ -56,6 +58,7 @@ const GEM_BETA = 0.6;
 export function passesFilters(movie: Movie, f: Filters): boolean {
   if (f.genreMask !== 0 && (movie.genreMask & f.genreMask) === 0) return false;
   if (f.decade !== null && Math.floor(movie.year / 10) * 10 !== f.decade) return false;
+  if (f.language !== null && !movie.languages.includes(f.language)) return false;
   return true;
 }
 

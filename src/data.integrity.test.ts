@@ -137,3 +137,39 @@ describe('shipped data: content-based quality on known films', () => {
     expect(directors.length).toBeGreaterThanOrEqual(8);
   });
 });
+
+describe('shipped data: languages.json', () => {
+  const core = read('core.json');
+  const content = read('content.json');
+  const languages = read('languages.json');
+  const cat = buildCatalog(core, content, languages);
+  const known = cat.movies.filter((m) => m.languages.length > 0);
+
+  it('validates against the schema and covers most of the catalogue', () => {
+    expect(cat.movies).toHaveLength(3000 + 7032);
+    expect(known.length).toBeGreaterThan(8000);
+  });
+
+  it('does not ship an empty language list', () => {
+    const codes = new Set(cat.movies.flatMap((m) => m.languages));
+    expect(codes.size).toBeGreaterThan(10);
+    expect(codes.has('en')).toBe(true);
+  });
+
+  it('assigns expected original languages to well-known films', () => {
+    const lang = (title: string): string[] => {
+      const m = cat.movies.find((x) => x.title === title);
+      expect(m, title).toBeDefined();
+      return [...(m?.languages ?? [])];
+    };
+    expect(lang('The Shawshank Redemption')).toEqual(['en']);
+    expect(lang('Spirited Away')).toEqual(['ja']);
+    expect(lang('Amelie')).toContain('fr');
+    expect(lang('Metropolis')).toContain('de');
+    expect(lang('Parasite')).toContain('ko');
+    expect(lang('Seven Samurai')).toContain('ja');
+    expect(lang('Pan\'s Labyrinth')).toContain('es');
+    expect(lang('The Lives of Others')).toContain('de');
+    expect(lang('City of God')).toContain('pt');
+  });
+});

@@ -112,3 +112,35 @@ export function validateContent(raw: unknown, coreCount: number): ContentFile {
   }
   return content;
 }
+
+const iso6391 = z.string().regex(/^$|^[a-z]{2}(,[a-z]{2})*$/);
+
+/** Parallel language lists for core.items and content.items. Empty string = unknown. */
+export const languagesFileSchema = z.object({
+  v: z.literal(1),
+  built: z.string().min(1),
+  source: z.string().min(1),
+  core: z.array(iso6391),
+  content: z.array(iso6391),
+});
+
+export type LanguagesFile = z.infer<typeof languagesFileSchema>;
+
+export function validateLanguages(raw: unknown, coreCount: number, contentCount: number | null): LanguagesFile {
+  const parsed = languagesFileSchema.safeParse(raw);
+  if (!parsed.success) {
+    throw new DataValidationError('languages', parsed.error.issues[0]?.message ?? 'schema mismatch');
+  }
+  const data = parsed.data;
+  if (data.core.length !== coreCount) {
+    throw new DataValidationError('languages', `core has ${data.core.length} entries, expected ${coreCount}`);
+  }
+  if (contentCount !== null && data.content.length !== contentCount) {
+    throw new DataValidationError('languages', `content has ${data.content.length} entries, expected ${contentCount}`);
+  }
+  return data;
+}
+
+export function splitLanguageCodes(value: string): string[] {
+  return value.split(',').filter((c) => c !== '');
+}

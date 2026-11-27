@@ -15,4 +15,5 @@ fi
 # IMDb non-commercial datasets (https://developer.imdb.com/non-commercial-datasets/), refreshed daily.
 curl -fL -o title.ratings.tsv.gz https://datasets.imdbws.com/title.ratings.tsv.gz
 curl -fL -o title.basics.tsv.gz https://datasets.imdbws.com/title.basics.tsv.gz
+curl -fL -o title.akas.tsv.gz https://datasets.imdbws.com/title.akas.tsv.gz
 echo "Raw data ready in $(pwd)"

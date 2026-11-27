@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { buildCatalog } from './catalog';
-import { DataValidationError, validateContent, validateCore } from './schema';
-import { contentRaw, coreRaw, fixture } from '../test/fixtures';
+import { DataValidationError, validateContent, validateCore, validateLanguages } from './schema';
+import { contentRaw, coreRaw, fixture, languagesRaw } from '../test/fixtures';
 
 describe('buildCatalog', () => {
   it('unpacks items, genres, ratings and per-mille neighbours', () => {
@@ -14,6 +14,13 @@ describe('buildCatalog', () => {
     expect(cat.neighbours[2]).toEqual([{ index: 3, sim: 0.4 }, { index: 5, sim: 0.35 }, { index: 4, sim: 0.2 }]);
     expect(cat.movies[6]?.source).toBe('wikidata');
     expect(cat.people[cat.movies[2]!.directors[0]!]).toBe('Michael Mann');
+    expect(cat.movies[2]?.languages).toEqual(['en']);
+    expect(cat.movies[6]?.languages).toEqual(['de']);
+  });
+
+  it('attaches original-language codes from the languages file and leaves them empty without it', () => {
+    expect(buildCatalog(coreRaw, contentRaw, languagesRaw).movies[6]?.languages).toEqual(['de']);
+    expect(buildCatalog(coreRaw, contentRaw).movies[0]?.languages).toEqual([]);
   });
 
   it('works with the MovieLens layer alone', () => {
@@ -60,5 +67,11 @@ describe('schema validation', () => {
   it('accepts the fixtures', () => {
     expect(() => validateCore(coreRaw)).not.toThrow();
     expect(() => validateContent(contentRaw, 6)).not.toThrow();
+    expect(() => validateLanguages(languagesRaw, 6, 3)).not.toThrow();
+  });
+  it('rejects a languages file whose lengths do not match the catalogue', () => {
+    expect(() => validateLanguages(languagesRaw, 5, 3)).toThrow(DataValidationError);
+    expect(() => validateLanguages(languagesRaw, 6, 2)).toThrow(DataValidationError);
+    expect(() => validateLanguages(languagesRaw, 6, null)).not.toThrow();
   });
 });

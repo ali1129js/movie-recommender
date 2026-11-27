@@ -5,12 +5,13 @@ import { describe, expect, it, vi } from "vitest";
 import { App } from "./App";
 import { HIDDEN_KEY, readHiddenIds } from "./lib/hideStore";
 import { PICKS_KEY, readStoredPicks, writeStoredPicks } from "./lib/pickStore";
-import { contentRaw, coreRaw } from "./test/fixtures";
+import { contentRaw, coreRaw, languagesRaw } from "./test/fixtures";
 import type { Loaders } from "./lib/useCatalog";
 
 const loaders = (over: Partial<Loaders> = {}): Loaders => ({
   core: () => Promise.resolve(structuredClone(coreRaw)),
   content: () => Promise.resolve(structuredClone(contentRaw)),
+  languages: () => Promise.resolve(structuredClone(languagesRaw)),
   ...over,
 });
 
@@ -179,6 +180,21 @@ describe("App", () => {
       .map((o) => o.textContent);
     expect(options).toContain("1920s");
     expect(options).toContain("2020s");
+  });
+
+  it("language filter lists catalogue languages and keeps only matching films", async () => {
+    const { user, box } = await setup();
+    const options = within(screen.getByLabelText("Language"))
+      .getAllByRole("option")
+      .map((o) => o.textContent);
+    expect(options[0]).toBe("Any language");
+    expect(options).toContain("English");
+    expect(options).toContain("German");
+    await pick(user, box, "Toy Story");
+    await user.selectOptions(screen.getByLabelText("Language"), "de");
+    expect(screen.getByTestId("no-results")).toBeInTheDocument();
+    await user.selectOptions(screen.getByLabelText("Language"), "en");
+    expect(await screen.findByRole("heading", { name: /Toy Story 2/ })).toBeInTheDocument();
   });
 
   it("keyboard: ArrowDown + Enter selects the highlighted suggestion", async () => {

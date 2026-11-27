@@ -13,6 +13,7 @@ import { SearchBox } from "./components/SearchBox";
 import { MotionToggle } from "./components/MotionToggle";
 import { ThemeSwitcher } from "./components/ThemeSwitcher";
 import { decadeOf } from "./lib/genres";
+import { languageOptions } from "./lib/languages";
 import { recommend } from "./lib/recommender";
 import { buildSearchIndex, searchMovies } from "./lib/search";
 import { initialState, MAX_PICKS, reducer } from "./lib/state";
@@ -67,6 +68,10 @@ export function App({ loaders = defaultLoaders }: { loaders?: Loaders }) {
     for (const m of catalog?.movies ?? []) set.add(decadeOf(m.year));
     return [...set].sort((a, b) => a - b);
   }, [catalog]);
+  const languages = useMemo(
+    () => languageOptions(catalog?.movies ?? []),
+    [catalog],
+  );
 
   const contentSettled =
     status.phase === "ready" && status.content !== "loading";
@@ -77,20 +82,24 @@ export function App({ loaders = defaultLoaders }: { loaders?: Loaders }) {
     const sourceIds = sel.imdbIds.length > 0 ? sel.imdbIds : readStoredPicks();
     const { picks, missing } = resolvePicks(sourceIds, catalog);
     const decadeKnown = sel.decade === null || decades.includes(sel.decade);
-    // Films and decades that only exist in the lazy content layer resolve once it has loaded (or failed).
-    if ((missing.length > 0 || !decadeKnown) && !contentSettled) return;
+    const languageKnown =
+      sel.language === null || languages.some((l) => l.code === sel.language);
+    // Films, decades and languages that only exist in the lazy content layer resolve once it has loaded (or failed).
+    if ((missing.length > 0 || !decadeKnown || !languageKnown) && !contentSettled)
+      return;
     dispatch({
       type: "hydrate",
       picks,
       filters: {
         genreMask: sel.genreMask,
         decade: decadeKnown ? sel.decade : null,
+        language: languageKnown ? sel.language : null,
       },
       mode: sel.mode,
       sort: sel.sort,
     });
     setHydrated(true);
-  }, [hydrated, catalog, decades, contentSettled]);
+  }, [hydrated, catalog, decades, languages, contentSettled]);
 
   useEffect(() => {
     if (!hydrated || !catalog) return;
@@ -310,7 +319,7 @@ export function App({ loaders = defaultLoaders }: { loaders?: Loaders }) {
         </section>
 
         {ready && (
-          <Filters state={state} dispatch={dispatch} decades={decades} />
+          <Filters state={state} dispatch={dispatch} decades={decades} languages={languages} />
         )}
 
         <section

@@ -8,3 +8,4 @@ export const IMDB_BASICS = join(RAW_DIR, 'title.basics.tsv.gz');
 export const WD_CACHE = join(RAW_DIR, 'wikidata-cache');
 export const OUT_DIR = resolve('public/data');
 export const WORK_DIR = join(RAW_DIR, 'work');
+export const IMDB_AKAS = join(RAW_DIR, 'title.akas.tsv.gz');

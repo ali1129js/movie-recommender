@@ -7,9 +7,9 @@ No server, no API keys, nothing you pick leaves your browser.
   (item-item adjusted cosine, shrinkage, mild popularity damping).
 * **Wider catalogue layer**: 7,032 more titles from the silent era to 2026 (Wikidata, CC0), matched by genre, director,
   cast and era, always labelled **Content-based** in the UI. It is lazy-loaded after the first render.
-* Multi-film selection, genre and decade filters, popular vs hidden-gems, sort options, three gloss themes
+* Multi-film selection, genre, decade and original-language filters, popular vs hidden-gems, sort options, three gloss themes
   (Khaki, Graphite, Midnight) and a motion toggle (static by default), keyboard-accessible combobox search, IMDb ratings with link-out.
-* Shareable links: picks and filters live in the URL (`?picks=tt0113277,tt0114369&genres=Crime&sort=imdb`), so a copied
+* Shareable links: picks and filters live in the URL (`?picks=tt0113277,tt0114369&genres=Crime&lang=en&sort=imdb`), so a copied
   link or a refresh rebuilds the same recommendations. Films are stored by IMDb id; unknown or stale ids are dropped
   (`src/lib/urlState.ts`).
 
@@ -82,3 +82,4 @@ https://ali1129js.github.io/movie-recommender/ (GitHub Pages, deployed by `.gith
 * MovieLens ratings stop in October 2023, so viewer-rating recommendations cannot cover newer films.
 * IMDb data is used under its non-commercial terms; IMDb may withdraw permission.
 * Wikidata cast/genre coverage is uneven for early and non-English cinema.
+* Original language comes from Wikidata P364, with gaps filled from the IMDb original-title aka. Some early or poorly documented films have no language and drop out of a language filter.

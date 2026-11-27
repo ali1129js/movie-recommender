@@ -1,15 +1,23 @@
 import { maskToGenres } from './genres';
 import {
+  splitLanguageCodes,
   validateContent,
   validateCore,
+  validateLanguages,
   type ContentFile,
   type CoreFile,
+  type LanguagesFile,
 } from './schema';
 import type { Catalog, Movie, Neighbour } from './types';
 
 const ratingOrNull = (r10: number): number | null => (r10 > 0 ? r10 / 10 : null);
 
-function coreMovies(core: CoreFile, content: ContentFile | null): Movie[] {
+function langsFor(file: LanguagesFile | null, kind: 'core' | 'content', i: number): string[] {
+  const raw = file?.[kind][i] ?? '';
+  return splitLanguageCodes(raw);
+}
+
+function coreMovies(core: CoreFile, content: ContentFile | null, languages: LanguagesFile | null): Movie[] {
   return core.items.map(([title, year, mask, imdb, rating10, votes, mlMean10, mlCount, alt], index) => {
     const features = content?.coreFeatures[index];
     return {
@@ -27,6 +35,7 @@ function coreMovies(core: CoreFile, content: ContentFile | null): Movie[] {
       altTitles: alt ? alt.split(' | ') : [],
       directors: features?.[0] ?? [],
       cast: features?.[1] ?? [],
+      languages: langsFor(languages, 'core', index),
     };
   });
 }
@@ -40,10 +49,14 @@ function unpackNeighbours(core: CoreFile): Neighbour[][] {
 }
 
 /** Builds a catalogue from validated JSON. Pass `content = null` for the MovieLens layer alone. */
-export function buildCatalog(coreRaw: unknown, contentRaw: unknown | null): Catalog {
+export function buildCatalog(coreRaw: unknown, contentRaw: unknown | null, languagesRaw: unknown | null = null): Catalog {
   const core = validateCore(coreRaw);
   const content = contentRaw === null ? null : validateContent(contentRaw, core.items.length);
-  const movies = coreMovies(core, content);
+  const languages =
+    languagesRaw === null
+      ? null
+      : validateLanguages(languagesRaw, core.items.length, content ? content.items.length : null);
+  const movies = coreMovies(core, content, languages);
   if (content) {
     content.items.forEach(([title, year, mask, imdb, rating10, votes, directors, cast], k) => {
       movies.push({
@@ -61,6 +74,7 @@ export function buildCatalog(coreRaw: unknown, contentRaw: unknown | null): Cata
         altTitles: [],
         directors,
         cast,
+        languages: langsFor(languages, 'content', k),
       });
     });
   }

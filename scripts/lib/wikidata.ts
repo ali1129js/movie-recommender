@@ -158,3 +158,28 @@ export function chunk<T>(list: readonly T[], size: number): T[][] {
   for (let i = 0; i < list.length; i += size) out.push(list.slice(i, i + size));
   return out;
 }
+
+/**
+ * Original language(s) of a film (Wikidata P364), as ISO 639-1 codes (P218).
+ * A film may have more than one; the first value in Wikidata order is kept first.
+ * Codes without P218 are dropped (ISO 639-2/3 only).
+ */
+export async function fetchOriginalLanguages(ids: readonly number[]): Promise<Map<number, string[]>> {
+  const rows = await sparql(`
+SELECT DISTINCT ?imdb ?code WHERE {
+  VALUES ?imdb { ${values(ids)} }
+  ?f wdt:P345 ?imdb ; wdt:P364 ?langItem .
+  ?langItem wdt:P218 ?code .
+}`);
+  const out = new Map<number, string[]>();
+  for (const r of rows) {
+    if (!r.imdb || !r.code) continue;
+    const code = r.code.toLowerCase();
+    if (!/^[a-z]{2}$/.test(code)) continue;
+    const id = parseTt(r.imdb);
+    const list = out.get(id) ?? [];
+    if (!list.includes(code)) list.push(code);
+    out.set(id, list);
+  }
+  return out;
+}

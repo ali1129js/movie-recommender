@@ -1,4 +1,5 @@
 import { buildCore } from './build-core';
+import { buildLanguages } from './build-languages';
 
 const args = process.argv.slice(2);
 const stage = args.find((a) => !a.startsWith('--')) ?? 'all';
@@ -10,6 +11,7 @@ async function main(): Promise<void> {
     const { buildContent } = await import('./build-content');
     await buildContent();
   }
+  if (stage === 'languages' || stage === 'all') await buildLanguages();
 }
 
 main().catch((err) => {

@@ -20,6 +20,8 @@ export interface Movie {
   readonly altTitles: readonly string[];
   readonly directors: readonly number[];
   readonly cast: readonly number[];
+  /** ISO 639-1 codes for the original language(s). Empty when unknown. */
+  readonly languages: readonly string[];
 }
 
 export interface Neighbour {

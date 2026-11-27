@@ -60,7 +60,7 @@ describe("hidden titles and the recommender", () => {
     const hidden = indicesForImdbIds([toy2.imdbId], catalog);
     const result = recommend(catalog, [toyStory.index], {
       mode: "popular",
-      filters: { genreMask: 0, decade: null },
+      filters: { genreMask: 0, decade: null, language: null },
       limit: 12,
       sort: "relevance",
       exclude: new Set(hidden),
@@ -79,7 +79,7 @@ describe("hidden titles and the recommender", () => {
     expect(() =>
       recommend(catalog, [toyStory.index], {
         mode: "popular",
-        filters: { genreMask: 0, decade: null },
+        filters: { genreMask: 0, decade: null, language: null },
         limit: 12,
         sort: "relevance",
         exclude: new Set(others),
@@ -87,7 +87,7 @@ describe("hidden titles and the recommender", () => {
     ).not.toThrow();
     const result = recommend(catalog, [toyStory.index], {
       mode: "popular",
-      filters: { genreMask: 0, decade: null },
+      filters: { genreMask: 0, decade: null, language: null },
       limit: 12,
       sort: "relevance",
       exclude: new Set(others),

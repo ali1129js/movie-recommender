@@ -15,7 +15,7 @@ export interface AppState {
 
 export const initialState: AppState = {
   picks: [],
-  filters: { genreMask: 0, decade: null },
+  filters: { genreMask: 0, decade: null, language: null },
   mode: 'popular',
   sort: 'relevance',
   limit: PAGE_SIZE,
@@ -28,6 +28,7 @@ export type Action =
   | { type: 'toggleGenre'; genre: string }
   | { type: 'clearGenres' }
   | { type: 'setDecade'; decade: number | null }
+  | { type: 'setLanguage'; language: string | null }
   | { type: 'setMode'; mode: Mode }
   | { type: 'setSort'; sort: SortKey }
   | { type: 'more' }
@@ -65,6 +66,8 @@ export function reducer(state: AppState, action: Action): AppState {
       return { ...state, filters: { ...state.filters, genreMask: 0 }, limit: PAGE_SIZE };
     case 'setDecade':
       return { ...state, filters: { ...state.filters, decade: action.decade }, limit: PAGE_SIZE };
+    case 'setLanguage':
+      return { ...state, filters: { ...state.filters, language: action.language }, limit: PAGE_SIZE };
     case 'setMode':
       return { ...state, mode: action.mode, limit: PAGE_SIZE };
     case 'setSort':

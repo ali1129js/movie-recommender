@@ -1,4 +1,5 @@
 import { GENRES, decadeLabel } from '../lib/genres';
+import type { LanguageOption } from '../lib/languages';
 import type { Mode, SortKey } from '../lib/recommender';
 import type { Action, AppState } from '../lib/state';
 
@@ -6,6 +7,7 @@ interface Props {
   state: AppState;
   dispatch: (a: Action) => void;
   decades: readonly number[];
+  languages: readonly LanguageOption[];
 }
 
 const SORTS: [SortKey, string][] = [
@@ -15,7 +17,7 @@ const SORTS: [SortKey, string][] = [
   ['oldest', 'Oldest first'],
 ];
 
-export function Filters({ state, dispatch, decades }: Props) {
+export function Filters({ state, dispatch, decades, languages }: Props) {
   const mask = state.filters.genreMask;
   const modes: [Mode, string, string][] = [
     ['popular', 'Popular', 'Well-known films first'],
@@ -64,6 +66,25 @@ export function Filters({ state, dispatch, decades }: Props) {
             {decades.map((d) => (
               <option key={d} value={d}>
                 {decadeLabel(d)}
+              </option>
+            ))}
+          </select>
+        </div>
+
+
+        <div>
+          <label className="field-label" htmlFor="language">
+            Language
+          </label>
+          <select
+            id="language"
+            value={state.filters.language ?? ''}
+            onChange={(e) => dispatch({ type: 'setLanguage', language: e.target.value === '' ? null : e.target.value })}
+          >
+            <option value="">Any language</option>
+            {languages.map((lang) => (
+              <option key={lang.code} value={lang.code}>
+                {lang.label}
               </option>
             ))}
           </select>

@@ -7,19 +7,19 @@ import { encodeSelection, hasSelection, parseSelection, resolvePicks } from './u
 describe('urlState', () => {
   const cat = fixture();
 
-  it('round-trips picks, genres, decade, mode and sort through the query string', () => {
+  it('round-trips picks, genres, decade, language, mode and sort through the query string', () => {
     const state = {
       ...initialState,
       picks: [2, 3, 7],
-      filters: { genreMask: genresToMask(['Crime', 'Sci-Fi']), decade: 1990 },
+      filters: { genreMask: genresToMask(['Crime', 'Sci-Fi']), decade: 1990, language: 'en' },
       mode: 'gems' as const,
       sort: 'newest' as const,
     };
     const search = encodeSelection(state, cat);
-    expect(search).toBe('?picks=tt0113277,tt0114369,tt0122690&genres=Crime,Sci-Fi&decade=1990&mode=gems&sort=newest');
+    expect(search).toBe('?picks=tt0113277,tt0114369,tt0122690&genres=Crime,Sci-Fi&decade=1990&lang=en&mode=gems&sort=newest');
     const sel = parseSelection(search);
     expect(resolvePicks(sel.imdbIds, cat)).toEqual({ picks: [2, 3, 7], missing: [] });
-    expect(sel).toMatchObject({ genreMask: state.filters.genreMask, decade: 1990, mode: 'gems', sort: 'newest' });
+    expect(sel).toMatchObject({ genreMask: state.filters.genreMask, decade: 1990, language: 'en', mode: 'gems', sort: 'newest' });
   });
 
   it('leaves defaults out and keeps unrelated parameters', () => {
@@ -37,6 +37,9 @@ describe('urlState', () => {
     expect(sel.mode).toBeNull();
     expect(sel.sort).toBe('imdb');
     expect(parseSelection('?decade=abc').decade).toBeNull();
+    expect(parseSelection('?lang=en').language).toBe('en');
+    expect(parseSelection('?lang=english').language).toBeNull();
+    expect(parseSelection('?lang=EN').language).toBeNull();
   });
 
   it('caps the number of linked picks', () => {

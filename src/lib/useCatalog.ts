@@ -10,12 +10,14 @@ export type CatalogStatus =
 export interface Loaders {
   core: () => Promise<unknown>;
   content: () => Promise<unknown>;
+  languages?: () => Promise<unknown>;
 }
 
 const base = import.meta.env.BASE_URL;
 export const defaultLoaders: Loaders = {
   core: () => fetchJson(`${base}data/core.json`),
   content: () => fetchJson(`${base}data/content.json`),
+  languages: () => fetchJson(`${base}data/languages.json`),
 };
 
 /**
@@ -33,9 +35,16 @@ export function useCatalog(loaders: Loaders, attempt: number): { catalog: Catalo
     setStatus({ phase: 'loading-core' });
     (async () => {
       let coreRaw: unknown;
+      let languagesRaw: unknown | null = null;
       try {
-        coreRaw = await loadersRef.current.core();
-        const core = buildCatalog(coreRaw, null);
+        const loaded = loadersRef.current;
+        const [coreResult, langResult] = await Promise.all([
+          loaded.core(),
+          loaded.languages ? loaded.languages().then((v) => v, () => null) : Promise.resolve(null),
+        ]);
+        coreRaw = coreResult;
+        languagesRaw = langResult;
+        const core = buildCatalog(coreRaw, null, languagesRaw);
         if (cancelled) return;
         setCatalog(core);
         setStatus({ phase: 'ready', content: 'loading' });
@@ -45,7 +54,7 @@ export function useCatalog(loaders: Loaders, attempt: number): { catalog: Catalo
       }
       try {
         const contentRaw = await loadersRef.current.content();
-        const full = buildCatalog(coreRaw, contentRaw);
+        const full = buildCatalog(coreRaw, contentRaw, languagesRaw);
         if (cancelled) return;
         setCatalog(full);
         setStatus({ phase: 'ready', content: 'ready' });

@@ -40,6 +40,8 @@ describe('reducer', () => {
     const more = reducer(initialState, { type: 'more' });
     expect(more.limit).toBe(PAGE_SIZE * 2);
     expect(reducer(more, { type: 'setDecade', decade: 1990 }).limit).toBe(PAGE_SIZE);
+    expect(reducer(more, { type: 'setLanguage', language: 'ja' }).limit).toBe(PAGE_SIZE);
+    expect(reducer(initialState, { type: 'setLanguage', language: 'ja' }).filters.language).toBe('ja');
     expect(reducer(more, { type: 'pick', index: 1 }).limit).toBe(PAGE_SIZE);
   });
 
@@ -54,12 +56,12 @@ describe('reducer', () => {
     const s = reducer(busy, {
       type: 'hydrate',
       picks: [2, 5, 3],
-      filters: { genreMask: genreBit('Crime'), decade: 1990 },
+      filters: { genreMask: genreBit('Crime'), decade: 1990, language: null },
       mode: 'gems',
       sort: null,
     });
     expect(s.picks).toEqual([2, 5, 3]);
-    expect(s.filters).toEqual({ genreMask: genreBit('Crime'), decade: 1990 });
+    expect(s.filters).toEqual({ genreMask: genreBit('Crime'), decade: 1990, language: null });
     expect(s.mode).toBe('gems');
     expect(s.sort).toBe('relevance');
     expect(s.limit).toBe(PAGE_SIZE);

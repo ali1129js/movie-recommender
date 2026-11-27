@@ -68,12 +68,12 @@ describe('recommendCollaborative', () => {
   });
 
   it('applies genre filters with OR semantics', () => {
-    const recs = recommendCollaborative(cat, [2], opts({ filters: { genreMask: genreBit('Sci-Fi') | genreBit('Mystery'), decade: null } }));
+    const recs = recommendCollaborative(cat, [2], opts({ filters: { genreMask: genreBit('Sci-Fi') | genreBit('Mystery'), decade: null, language: null } }));
     expect(titles(recs).sort()).toEqual(['Se7en', 'The Matrix']);
   });
 
   it('applies decade filters', () => {
-    expect(titles(recommendCollaborative(cat, [2], opts({ filters: { genreMask: 0, decade: 2000 } })))).toEqual(['Obscure Gem']);
+    expect(titles(recommendCollaborative(cat, [2], opts({ filters: { genreMask: 0, decade: 2000, language: null } })))).toEqual(['Obscure Gem']);
   });
 
   it('hidden-gems mode lifts a rarely-watched film above a blockbuster of equal similarity', () => {
@@ -87,10 +87,10 @@ describe('recommendCollaborative', () => {
   it('falls back to second-order neighbours when filters leave too few matches', () => {
     // Toy Story's only neighbour is Toy Story 2; its neighbour is Toy Story (a pick, excluded). With a
     // Crime filter nothing qualifies, so the result is empty rather than invented.
-    const crime = { genreMask: genreBit('Crime'), decade: null };
+    const crime = { genreMask: genreBit('Crime'), decade: null, language: null };
     expect(recommendCollaborative(cat, [0], opts({ filters: crime }))).toEqual([]);
     // Matrix's neighbour Heat leads on to Se7en and Gem at half weight.
-    const second = recommendCollaborative(cat, [4], opts({ limit: 5, filters: { genreMask: genreBit('Mystery'), decade: null } }));
+    const second = recommendCollaborative(cat, [4], opts({ limit: 5, filters: { genreMask: genreBit('Mystery'), decade: null, language: null } }));
     expect(titles(second)).toEqual(['Se7en']);
   });
 
@@ -137,7 +137,7 @@ describe('content layer', () => {
   });
 
   it('can recommend across eras: a 1927 pick finds modern Sci-Fi', () => {
-    expect(titles(recommendContent(cat, [6], opts({ filters: { genreMask: genreBit('Sci-Fi'), decade: null } })))).toContain('The Matrix');
+    expect(titles(recommendContent(cat, [6], opts({ filters: { genreMask: genreBit('Sci-Fi'), decade: null, language: null } })))).toContain('The Matrix');
   });
 
   it('recommend() keeps the two lists disjoint', () => {
@@ -164,9 +164,12 @@ describe('helpers', () => {
   it('passesFilters', () => {
     const toy = fixture().movies[0]!;
     expect(passesFilters(toy, NO_FILTERS)).toBe(true);
-    expect(passesFilters(toy, { genreMask: genreBit('Horror'), decade: null })).toBe(false);
-    expect(passesFilters(toy, { genreMask: 0, decade: 1990 })).toBe(true);
-    expect(passesFilters(toy, { genreMask: 0, decade: 1980 })).toBe(false);
+    expect(passesFilters(toy, { genreMask: genreBit('Horror'), decade: null, language: null })).toBe(false);
+    expect(passesFilters(toy, { genreMask: 0, decade: 1990, language: null })).toBe(true);
+    expect(passesFilters(toy, { genreMask: 0, decade: 1980, language: null })).toBe(false);
+    expect(passesFilters(toy, { genreMask: 0, decade: null, language: 'en' })).toBe(true);
+    expect(passesFilters(toy, { genreMask: 0, decade: null, language: 'de' })).toBe(false);
+    expect(passesFilters(fixture().movies[6]!, { genreMask: 0, decade: null, language: 'de' })).toBe(true);
   });
 });
 

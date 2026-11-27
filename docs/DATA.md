@@ -5,9 +5,10 @@ The app never calls an API at runtime.
 
 ```
 scripts/download-raw.sh        # MovieLens 32M + IMDb ratings/basics -> raw/ (git-ignored)
-npm run data:build             # core + content
+npm run data:build             # core + content + languages
 npm run data:build -- core     # only the MovieLens layer (about 1 minute)
 npm run data:build -- content  # only the Wikidata layer (long: rate-limited, cached on disk)
+npm run data:build -- languages  # original-language codes for the shipped titles
 ```
 
 Set `RECSYS_RAW_DIR` to keep raw files elsewhere. Wikidata responses are cached in `$RECSYS_RAW_DIR/wikidata-cache`,
@@ -39,6 +40,17 @@ its query backend in 2026-27).
   known actors per film (by Wikidata sitelink count).
 - These titles have **no viewer-rating neighbours**. The app matches them by genre overlap, shared director/cast and
   release era, and always labels such results "Content-based".
+
+## `languages.json`: original language
+
+- One ISO 639-1 code string per film, in the same order as `core.items` and `content.items`.
+  Several codes are comma-separated when a film has more than one original language. An empty
+  string means the language could not be determined.
+- **Primary source:** Wikidata P364 (original language), via ISO 639-1 property P218 (CC0).
+- **Fallback:** the language of the IMDb original-title aka (`title.akas.tsv.gz`, same
+  non-commercial datasets as the ratings snapshot). This is only used when Wikidata has no P364.
+- The language filter in the app matches a selected code against these values. Films with an
+  unknown language appear only when the filter is "Any language".
 
 ## Known limits
 
